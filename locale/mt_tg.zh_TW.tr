@@ -1,0 +1,21 @@
+# textdomain: mt_tg
+Re @1 "@2"=回覆 @1 "@2"
+FWD @1=轉發自 @1
+@1 joined Telegram Group.=@1 加入了Telegram群組。
+@1 left Telegram Group.=@1 離開了Telegram群組。
+Animation: @1x@2, @3 seconds=動畫: @1x@2，@3秒
+Unknown Performer=未知的演出者
+Audio: @1 by @2, @3 seconds=音樂: @1（@2），@3秒
+Audio: @1 seconds=音樂: @1秒
+Document: @1=文件: @1
+Document=文件
+Photo: @1x@2=照片: @1x@2
+Sticker: @1=貼圖: @1
+Sticker=貼圖
+Video: @1x@2, @3 seconds=影片: @1x@2，@3秒
+Video Message: @1 seconds=視像信息: @1秒
+Voice Message: @1 seconds=語音信息: @1秒
+Contact: @1, @2=聯繫人: @1，@2
+Dice @1: @2=隨機 @1: @2
+Game "@1": @2=遊戲 "@1": @2
+Relay set. Messages will be relayed to Telegram group.=互聯已設定。所有信息將與Telegram群組互聯。

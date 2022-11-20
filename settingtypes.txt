@@ -1,0 +1,35 @@
+[Connection and Relay]
+# Interval between pollings, in second.
+mt_tg.poll_interval (Polling Interval) int 5
+
+# Token of the Telegram bot.
+mt_tg.token (Telegram Bot Token) string
+
+# Group to be relayed, in its Chat ID.
+mt_tg.target (Telegram Group ID) int 0
+
+# The URL of Telegram API Server.
+# Usually you don't have to change it, unless you want to use a local Bot API server.
+mt_tg.api_server (Telegram API Server URL) string https://api.telegram.org/
+
+
+[Message Processing]
+# List of users to be ignored by the relay, in their user ID, comma-seperated without spaces.
+mt_tg.ignored_users (UID of Telegram users to be ignored) string 777000
+
+# Whether to send Telegram user join message or not.
+# Unless the bot is one of the administrators in the group, this takes no effect.
+mt_tg.send_tg_join (Telegram user join message) bool true
+
+# Whether to send Telegram user leave message or not.
+# Unless the bot is one of the administrators in the group, this takes no effect.
+mt_tg.send_tg_leave (Telegram user leave message) bool true
+
+# Whether to send Telegram user commands or not.
+# Note that the bot can NEVER receive the command execute result due to the limitations.
+mt_tg.send_tg_cmds (Telegram user commands) bool false
+
+# Whether to allow Telegram users to use the /status command.
+# Note that it has to be /status@<botID> to use this command unless the bot is one of the administrators in the group.
+mt_tg.allow_tg_status (Telegram command /status) bool true
+

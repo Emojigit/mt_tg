@@ -1,0 +1,21 @@
+# textdomain: mt_tg
+Re @1 "@2"=
+FWD @1=
+@1 joined Telegram Group.=
+@1 left Telegram Group.=
+Animation: @1x@2, @3 seconds=
+Unknown Performer=
+Audio: @1 by @2, @3 seconds=
+Audio: @1 seconds=
+Document: @1=
+Document=
+Photo: @1x@2=
+Sticker: @1=
+Sticker=
+Video: @1x@2, @3 seconds=
+Video Message: @1 seconds=
+Voice Message: @1 seconds=
+Contact: @1, @2=
+Dice @1: @2=
+Game "@1": @2=
+Relay set. Messages will be relayed to Telegram group.=
