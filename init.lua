@@ -191,7 +191,7 @@ end
 
 local function mainloop(first)
 	local offset = (storage:get_int("tg_offset") + 1)
-	minetest.log("action","getUpdate start, offset " .. tostring(offset))
+	-- minetest.log("action","getUpdate start, offset " .. tostring(offset))
 	http.fetch({
 		url = api_server .. "bot" .. token .. "/getUpdates",
 		method = "POST",
