@@ -175,7 +175,11 @@ local function parse_message(msg)
 				end
 			end
 			-- MESSAGE DETECT END --
-			orig_send_all(minetest.format_chat_message(disp_name .. "@TG", append_str .. text))
+			if text then
+				orig_send_all(minetest.format_chat_message(disp_name .. "@TG", append_str .. text))
+			else
+				minetest.log("warning", "[mt_tg] Received non-text message: " .. dump(message))
+			end
 			return
 		end
 	end
