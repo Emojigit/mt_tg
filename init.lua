@@ -206,7 +206,7 @@ local function mainloop(first)
 			minetest.log("error","getUpdate Failed, Responce data: " .. resp.data)
 		else
 			local data = minetest.parse_json(resp.data)
-			if not data then
+			if not (data and data.result) then
 				minetest.log("error","getUpdate Failed, Responce data: " .. resp.data)
 			else
 				table.sort(data.result,compareMSGS)
