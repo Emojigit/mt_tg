@@ -98,7 +98,7 @@ local function parse_message(msg)
 				rep_disp_name = (message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")) ..
 				"@TG"
 			end
-			msg_short = string.sub(message.reply_to_message.text or message.reply_to_message.caption or "", 1, 20)
+			msg_short = string.sub(msg_short, 1, 20)
 			append_str = S("Re @1 \"@2\"", rep_disp_name, msg_short) .. ": "
 		else
 			local fwd_name
