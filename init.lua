@@ -257,7 +257,7 @@ minetest.register_on_mods_loaded(function()
 				minetest.log("error","getMe Failed, Responce data: " .. resp.data)
 			else
 				my_id = data.result.id
-				minetest.log("error","Found bot ID: " .. my_id)
+				minetest.log("action","Found bot ID: " .. my_id)
 			end
 		end
 	end)
