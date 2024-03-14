@@ -244,11 +244,11 @@ minetest.register_on_mods_loaded(function()
 	end)
 	send_tg("*** Server started!")
 	minetest.after(0,mainloop,true)
-	http.fetch({
+	minetest.after(0, http.fetch, {
 		url = api_server .. "bot" .. token .. "/getMe",
 		method = "GET",
 		user_agent = "Minetest-Telegram-Relay",
-	},function(resp)
+	}, function(resp)
 		if not resp.succeeded then
 			minetest.log("error","getMe Failed, Responce data: " .. resp.data)
 		else
