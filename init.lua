@@ -35,6 +35,8 @@ local allow_tg_status = conf:get_bool("mt_tg.allow_tg_status",true)
 
 -- SETTINGS END --
 
+local my_id = nil -- to be filled by async HTTP
+
 local function send_tg(msg)
 	local escaped_msg = tostring(msg)
 	escaped_msg = minetest.get_translated_string("en",escaped_msg) or msg
@@ -81,13 +83,20 @@ local function parse_message(msg)
 		local append_str = ""
 		if message.reply_to_message then
 			local rep_disp_name
+			local msg_short = message.reply_to_message.text or message.reply_to_message.caption or ""
 			if message.reply_to_message.sender_chat then -- Send on behalf of a chat
-				rep_disp_name = message.reply_to_message.sender_chat.title
-					or ("Chn-" .. tostring(message.reply_to_message.sender_chat.id))
+				rep_disp_name = (message.reply_to_message.sender_chat.title
+					or ("Chn-" .. tostring(message.reply_to_message.sender_chat.id))) .. "@TG"
+			elseif message.reply_to_message.from.id == my_id then
+				local _, _, pname, msg = string.find(message.reply_to_message.text, "<([%a%d_-]+)> (.+)")
+				if pname and msg then
+					rep_disp_name = pname
+					msg_short = msg
+				end
 			else -- Send by the individual directly
-				rep_disp_name = message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")
+				rep_disp_name = (message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")) .. "@TG"
 			end
-			local msg_short = string.sub(message.reply_to_message.text or message.reply_to_message.caption or "",1,20)
+			msg_short = string.sub(message.reply_to_message.text or message.reply_to_message.caption or "",1,20)
 			append_str = S("Re @1 \"@2\"",rep_disp_name,msg_short) .. ": "
 		else
 			local fwd_name
@@ -176,7 +185,9 @@ local function parse_message(msg)
 			end
 			-- MESSAGE DETECT END --
 			if text then
-				orig_send_all(minetest.format_chat_message(disp_name .. "@TG", append_str .. text))
+				local msg = minetest.format_chat_message(disp_name .. "@TG", append_str .. text)
+				minetest.log("action", "TG CHAT: " .. msg)
+				orig_send_all(msg)
 			else
 				minetest.log("warning", "[mt_tg] Received non-text message: " .. dump(message))
 			end
@@ -233,6 +244,23 @@ minetest.register_on_mods_loaded(function()
 	end)
 	send_tg("*** Server started!")
 	minetest.after(0,mainloop,true)
+	http.fetch({
+		url = api_server .. "bot" .. token .. "/getMe",
+		method = "GET",
+		user_agent = "Minetest-Telegram-Relay",
+	},function(resp)
+		if not resp.succeeded then
+			minetest.log("error","getMe Failed, Responce data: " .. resp.data)
+		else
+			local data = minetest.parse_json(resp.data)
+			if not (data and data.ok and data.result) then
+				minetest.log("error","getMe Failed, Responce data: " .. resp.data)
+			else
+				my_id = data.result.id
+				minetest.log("error","Found bot ID: " .. my_id)
+			end
+		end
+	end)
 end)
 
 minetest.register_on_shutdown(function()
