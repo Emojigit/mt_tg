@@ -186,7 +186,8 @@ local function parse_message(msg)
 			-- MESSAGE DETECT END --
 			if text then
 				local msg = minetest.format_chat_message(disp_name .. "@TG", append_str .. text)
-				minetest.log("action", "TG CHAT: " .. msg)
+				minetest.log("action", "TG CHAT: " ..
+					minetest.get_translated_string("en", msg))
 				orig_send_all(msg)
 			else
 				minetest.log("warning", "[mt_tg] Received non-text message: " .. dump(message))
@@ -240,7 +241,8 @@ end
 
 minetest.register_on_mods_loaded(function()
 	minetest.register_on_chat_message(function(name,message)
-		send_tg(minetest.format_chat_message(name, message))
+		send_tg(minetest.get_translated_string("en",
+			minetest.format_chat_message(name, message)))
 	end)
 	send_tg("*** Server started!")
 	minetest.after(0,mainloop,true)
