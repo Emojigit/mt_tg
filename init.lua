@@ -247,8 +247,10 @@ end
 
 minetest.register_on_mods_loaded(function()
 	minetest.register_on_chat_message(function(name, message)
-		send_tg(minetest.get_translated_string("en",
-			minetest.format_chat_message(name, message)))
+		if minetest.check_player_privs(name, { shout = true }) then
+			send_tg(minetest.get_translated_string("en",
+				minetest.format_chat_message(name, message)))
+		end
 	end)
 	send_tg("*** Server started!")
 	minetest.after(0, mainloop, true)
