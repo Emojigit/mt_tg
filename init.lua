@@ -89,10 +89,10 @@ local function parse_message(msg)
 				rep_disp_name = (message.reply_to_message.sender_chat.title
 					or ("Chn-" .. tostring(message.reply_to_message.sender_chat.id))) .. "@TG"
 			elseif message.reply_to_message.from.id == my_id then
-				local _, _, pname, msg = string.find(message.reply_to_message.text, "<([%a%d_-]+)> (.+)")
-				if pname and msg then
+				local _, _, pname, fmsg = string.find(message.reply_to_message.text, "<([%a%d_-]+)> (.+)")
+				if pname and fmsg then
 					rep_disp_name = pname
-					msg_short = msg
+					msg_short = fmsg
 				end
 			else -- Send by the individual directly
 				rep_disp_name = (message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")) ..
