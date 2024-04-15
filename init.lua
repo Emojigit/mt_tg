@@ -99,7 +99,7 @@ local function parse_message(msg)
 				"@TG"
 			end
 			msg_short = string.sub(msg_short, 1, 20)
-			append_str = S("Re @1 \"@2\"", rep_disp_name, msg_short) .. ": "
+			append_str = S("Re @1 \"@2\"", rep_disp_name or "", msg_short or "") .. ": "
 		else
 			local fwd_name
 			if message.forward_sender_name then -- Private Fwd
