@@ -1,12 +1,12 @@
-local http = minetest.request_http_api and minetest.request_http_api()
+local http = core.request_http_api and core.request_http_api()
 if not http then
 	error("Please allow mt_tg to access the HTTP API!")
 end
-local S             = minetest.get_translator("mt_tg")
-local storage       = minetest.get_mod_storage()
+local S             = core.get_translator("mt_tg")
+local storage       = core.get_mod_storage()
 
 -- SETTINGS --
-local conf          = minetest.settings
+local conf          = core.settings
 
 local poll_interval = tonumber(conf:get("mt_tg.poll_interval")) or 5
 local token         = conf:get("mt_tg.token")
@@ -39,8 +39,8 @@ local my_id           = nil -- to be filled by async HTTP
 
 local function send_tg(msg)
 	local escaped_msg = tostring(msg)
-	escaped_msg = minetest.get_translated_string("en", escaped_msg) or msg
-	escaped_msg = minetest.strip_colors(escaped_msg)
+	escaped_msg = core.get_translated_string("en", escaped_msg) or msg
+	escaped_msg = core.strip_colors(escaped_msg)
 	http.fetch({
 		url = api_server .. "bot" .. token .. "/sendMessage",
 		method = "POST",
@@ -48,16 +48,17 @@ local function send_tg(msg)
 			chat_id = target,
 			text = escaped_msg,
 		},
-		user_agent = "Minetest-Telegram-Relay",
+		user_agent = "Luanti-Telegram-Relay",
 		multipart = true,
 	}, function(resp)
 		if not resp.succeeded then
-			minetest.log("error", "sendMessage Failed, Responce data: " .. resp.data)
+			core.log("error", "sendMessage Failed, Responce data: " .. resp.data)
 		end
 	end)
 end
-local orig_send_all = minetest.chat_send_all
-function minetest.chat_send_all(msg)
+
+local orig_send_all = core.chat_send_all
+function core.chat_send_all(msg) -- luacheck: ignore
 	send_tg(msg)
 	orig_send_all(msg)
 end
@@ -77,7 +78,7 @@ local function parse_message(msg)
 			disp_name = message.sender_chat.title or ("Chn-" .. tostring(message.sender_chat.id))
 		else                  -- Send by the individual directly
 			disp_name = message.from.first_name ..
-			(message.from.last_name or "") .. (message.from.is_premium and " *" or "")
+				(message.from.last_name or "") .. (message.from.is_premium and " *" or "")
 		end
 		-- DISPLAY NAME END --
 		-- APPEND STR --
@@ -96,7 +97,7 @@ local function parse_message(msg)
 				end
 			else -- Send by the individual directly
 				rep_disp_name = (message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")) ..
-				"@TG"
+					"@TG"
 			end
 			msg_short = string.sub(msg_short, 1, 20)
 			append_str = S("Re @1 \"@2\"", rep_disp_name or "", msg_short or "") .. ": "
@@ -135,7 +136,7 @@ local function parse_message(msg)
 			local text
 			if message.text then -- Plain Text
 				if string.sub(message.text, 1, 7) == "/status" and allow_tg_status then
-					send_tg(minetest.get_server_status())
+					send_tg(core.get_server_status())
 				end
 				if string.sub(message.text, 1, 1) == "/" and not send_tg_cmds then
 					return
@@ -149,7 +150,8 @@ local function parse_message(msg)
 					if message.audio.title then
 						local performer = message.audio.performer or S("Unknown Performer")
 						text = "<" ..
-						S("Audio: @1 by @2, @3 seconds", message.audio.title, performer, message.audio.duration) .. ">"
+							S("Audio: @1 by @2, @3 seconds", message.audio.title, performer, message.audio.duration) ..
+							">"
 					else
 						text = "<" .. S("Audio: @1 seconds", message.audio.duration) .. ">"
 					end
@@ -161,14 +163,15 @@ local function parse_message(msg)
 					end
 				elseif message.photo then -- Photo
 					text = "<" ..
-					S("Photo: @1x@2", message.photo[#message.photo].width, message.photo[#message.photo].height) .. ">"
+						S("Photo: @1x@2", message.photo[#message.photo].width, message.photo[#message.photo].height) ..
+						">"
 				elseif message.sticker then -- Sticker
 					-- text = "<" .. S("Sticker: @1",message.sticker.emoji) .. ">"
 					text = "<" .. S("Sticker") .. ">" -- MT does not support showing emojies!
 				elseif message.video then -- Video
 					text = "<" ..
-					S("Video: @1x@2, @3 seconds", message.video.width, message.video.height, message.video.duration) ..
-					">"
+						S("Video: @1x@2, @3 seconds", message.video.width, message.video.height, message.video.duration) ..
+						">"
 				elseif message.videonote then
 					text = "<" .. S("Video Message: @1 seconds", message.videonote.duration) .. ">"
 				elseif message.voice then
@@ -191,12 +194,11 @@ local function parse_message(msg)
 			end
 			-- MESSAGE DETECT END --
 			if text then
-				local msg = minetest.format_chat_message(disp_name .. "@TG", append_str .. text)
-				minetest.log("action", "TG CHAT: " ..
-					minetest.get_translated_string("en", msg))
+				local formatted_msg = core.format_chat_message(disp_name .. "@TG", append_str .. text)
+				core.log("action", "TG CHAT: " .. core.get_translated_string("en", formatted_msg))
 				orig_send_all(msg)
 			else
-				minetest.log("warning", "[mt_tg] Received non-text message: " .. dump(message))
+				core.log("warning", "[mt_tg] Received non-text message: " .. dump(message))
 			end
 			return
 		end
@@ -209,7 +211,7 @@ end
 
 local function mainloop(first)
 	local offset = (storage:get_int("tg_offset") + 1)
-	-- minetest.log("action","getUpdate start, offset " .. tostring(offset))
+	-- core.log("action","getUpdate start, offset " .. tostring(offset))
 	http.fetch({
 		url = api_server .. "bot" .. token .. "/getUpdates",
 		method = "POST",
@@ -218,61 +220,61 @@ local function mainloop(first)
 			allowed_updates = "message",
 			offset = tostring(offset)
 		},
-		user_agent = "Minetest-Telegram-Relay",
+		user_agent = "Luanti-Telegram-Relay",
 	}, function(resp)
 		if not resp.succeeded then
-			minetest.log("error", "getUpdate Failed, Responce data: " .. resp.data)
+			core.log("error", "getUpdate Failed, Responce data: " .. resp.data)
 		else
-			local data = minetest.parse_json(resp.data)
+			local data = core.parse_json(resp.data)
 			if not (data and data.result) then
-				minetest.log("error", "getUpdate Failed, Responce data: " .. resp.data)
+				core.log("error", "getUpdate Failed, Responce data: " .. resp.data)
 			else
 				table.sort(data.result, compareMSGS)
 				if not first then
 					for _, y in ipairs(data.result) do
-						minetest.log("action", "Processing message " .. tostring(y.update_id))
+						core.log("action", "Processing message " .. tostring(y.update_id))
 						parse_message(y)
 					end
 				else
 					if data.result[#data.result] then
 						storage:set_int("tg_offset", data.result[#data.result].update_id)
 					end
-					minetest.chat_send_all("*** " .. S("Relay set. Messages will be relayed to Telegram group."))
+					core.chat_send_all("*** " .. S("Relay set. Messages will be relayed to Telegram group."))
 				end
 			end
 		end
-		minetest.after(first and 1 or poll_interval, mainloop)
+		core.after(first and 1 or poll_interval, mainloop)
 	end)
 end
 
-minetest.register_on_mods_loaded(function()
-	minetest.register_on_chat_message(function(name, message)
-		if minetest.check_player_privs(name, { shout = true }) then
-			send_tg(minetest.get_translated_string("en",
-				minetest.format_chat_message(name, message)))
+core.register_on_mods_loaded(function()
+	core.register_on_chat_message(function(name, message)
+		if core.check_player_privs(name, { shout = true }) then
+			send_tg(core.get_translated_string("en",
+				core.format_chat_message(name, message)))
 		end
 	end)
 	send_tg("*** Server started!")
-	minetest.after(0, mainloop, true)
-	minetest.after(0, http.fetch, {
+	core.after(0, mainloop, true)
+	core.after(0, http.fetch, {
 		url = api_server .. "bot" .. token .. "/getMe",
 		method = "GET",
-		user_agent = "Minetest-Telegram-Relay",
+		user_agent = "Luanti-Telegram-Relay",
 	}, function(resp)
 		if not resp.succeeded then
-			minetest.log("error", "getMe Failed, Responce data: " .. resp.data)
+			core.log("error", "getMe Failed, Responce data: " .. resp.data)
 		else
-			local data = minetest.parse_json(resp.data)
+			local data = core.parse_json(resp.data)
 			if not (data and data.ok and data.result) then
-				minetest.log("error", "getMe Failed, Responce data: " .. resp.data)
+				core.log("error", "getMe Failed, Responce data: " .. resp.data)
 			else
 				my_id = data.result.id
-				minetest.log("action", "Found bot ID: " .. my_id)
+				core.log("action", "Found bot ID: " .. my_id)
 			end
 		end
 	end)
 end)
 
-minetest.register_on_shutdown(function()
+core.register_on_shutdown(function()
 	send_tg("*** Server shutting down...")
 end)
