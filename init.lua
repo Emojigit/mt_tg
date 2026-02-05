@@ -63,6 +63,25 @@ function core.chat_send_all(msg) -- luacheck: ignore
 	orig_send_all(msg)
 end
 
+local function utf8_iter(s)
+  return s:gmatch("[%z\1-\127\194-\244][\128-\191]*")
+end
+
+local function utf8_truncate(s, n)
+  if not s or n <= 0 then
+    return ""
+  end
+  local count, last = 0, 0
+  for ch in utf8_iter(s) do
+    count = count + 1
+    last = last + #ch
+    if count == n then
+      return s:sub(1, last) .. (last < #s and "…" or "")
+    end
+  end
+  return s
+end
+
 local function parse_message(msg)
 	storage:set_int("tg_offset", msg.update_id)
 	if msg.message then -- Normal messages
@@ -99,7 +118,7 @@ local function parse_message(msg)
 				rep_disp_name = (message.reply_to_message.from.first_name .. (message.reply_to_message.from.last_name or "")) ..
 					"@TG"
 			end
-			msg_short = string.sub(msg_short, 1, 20)
+			msg_short = utf8_truncate(msg_short, 20)
 			append_str = S("Re @1 \"@2\"", rep_disp_name or "", msg_short or "") .. ": "
 		else
 			local fwd_name
